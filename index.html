@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buydown Calculator | Kimberly Patterson | Midland Federal Savings Bank</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0a2d5e;
+      --gold: #c8973a;
+      --gold-light: #e8b95a;
+      --light-bg: #f4f7fb;
+      --border: #d0d8e8;
+      --text: #222;
+      --text-muted: #555;
+      --white: #fff;
+      --green: #2a7d4f;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--navy);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .logo-block { display: flex; flex-direction: column; }
+    .logo-block .bank-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+    .logo-block .tagline {
+      font-size: 11px;
+      color: #aac0e0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .contact-block { text-align: right; color: var(--white); }
+    .contact-block .lo-name { font-size: 17px; font-weight: 700; color: var(--gold-light); }
+    .contact-block .lo-title { font-size: 12px; color: #aac0e0; margin-bottom: 2px; }
+    .contact-block .lo-nmls { font-size: 11px; color: #aac0e0; }
+    .contact-block a { color: var(--gold-light); text-decoration: none; font-weight: 600; }
+    .contact-block a:hover { text-decoration: underline; }
+
+    /* ── HERO BAND ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a4a8a 100%);
+      padding: 36px 32px 28px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 32px; color: var(--white); font-weight: 800; margin-bottom: 6px; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: #b8cce8; max-width: 680px; margin: 0 auto; font-size: 15px; }
+
+    /* ── MAIN LAYOUT ── */
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .card h2 {
+      font-size: 19px;
+      color: var(--navy);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    /* ── FORM GRID ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px 24px;
+      margin-bottom: 22px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .prefix,
+    .input-wrap .suffix {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .input-wrap .prefix { left: 10px; }
+    .input-wrap .suffix { right: 10px; }
+    .input-wrap input,
+    .input-wrap select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color .2s;
+    }
+    .input-wrap input:focus,
+    .input-wrap select:focus { outline: none; border-color: var(--navy); }
+    .input-wrap.has-prefix input { padding-left: 26px; }
+    .input-wrap.has-suffix input { padding-right: 28px; }
+
+    /* ── BUTTON ── */
+    .btn-calc {
+      display: inline-block;
+      padding: 13px 40px;
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: background .2s, transform .1s;
+    }
+    .btn-calc:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-calc:active { transform: translateY(0); }
+
+    /* ── RESULTS ── */
+    #results { display: none; }
+
+    .results-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead tr { background: var(--navy); color: var(--white); }
+    thead th { padding: 11px 14px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:nth-child(even) { background: #f0f4fa; }
+    tbody tr.buydown-row { background: #edf7f2; }
+    tbody tr.regular-row td:first-child { color: var(--text-muted); font-style: italic; }
+    tbody td { padding: 11px 14px; }
+    tbody td.savings { color: var(--green); font-weight: 700; }
+    tbody td.zero { color: var(--text-muted); }
+
+    .total-cost-box {
+      background: var(--navy);
+      color: var(--white);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .total-cost-box .label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #aac0e0; }
+    .total-cost-box .amount { font-size: 26px; font-weight: 800; color: var(--gold); }
+    .total-cost-box .note { font-size: 11px; color: #8aadcc; max-width: 400px; }
+
+    /* ── INFO SECTIONS ── */
+    .info-section h2 { font-size: 22px; color: var(--navy); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--gold); }
+    .info-section h3 { font-size: 17px; color: var(--navy); margin: 20px 0 6px; }
+    .info-section p { color: var(--text-muted); margin-bottom: 10px; }
+    .buydown-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 16px 0; }
+    .bt-card { background: var(--light-bg); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 6px; padding: 14px 16px; }
+    .bt-card h4 { color: var(--navy); font-size: 15px; margin-bottom: 4px; }
+    .bt-card p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    /* ── CTA ── */
+    .cta-box {
+      background: linear-gradient(135deg, var(--navy), #1a4a8a);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      text-align: center;
+      color: var(--white);
+      margin-bottom: 28px;
+    }
+    .cta-box h2 { font-size: 22px; color: var(--gold); margin-bottom: 8px; border: none; }
+    .cta-box p { color: #b8cce8; margin-bottom: 16px; }
+    .cta-box a {
+      display: inline-block;
+      padding: 12px 36px;
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 800;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: background .2s;
+    }
+    .cta-box a:hover { background: var(--gold-light); }
+
+    /* ── DISCLAIMERS ── */
+    .disclaimer {
+      font-size: 11.5px;
+      color: #777;
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .disclaimer p { margin-bottom: 8px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      color: #aac0e0;
+      text-align: center;
+      padding: 20px 32px;
+      font-size: 12px;
+    }
+    footer strong { color: var(--gold); }
+
+    @media (max-width: 600px) {
+      header { padding: 14px 16px; }
+      .hero { padding: 24px 16px 18px; }
+      .hero h1 { font-size: 24px; }
+      .card { padding: 20px 16px; }
+      main { padding: 20px 10px 40px; }
+      .total-cost-box { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo-block">
+    <div class="bank-name">Midland Federal Savings Bank</div>
+    <div class="tagline">Your Hometown Lender</div>
+  </div>
+  <div class="contact-block">
+    <div class="lo-name">Kimberly Patterson</div>
+    <div class="lo-title">Home Loan Officer</div>
+    <div class="lo-nmls">NMLS# 364477</div>
+    <a href="tel:8186525652">(818) 652-5652</a>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <h1>Temporary <span>Buydown</span> Calculator</h1>
+  <p>There is more than one way to get a lower interest rate. Use this calculator to see how a temporary buydown could reduce your monthly mortgage payment in the early years of your loan.</p>
+</div>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- CALCULATOR CARD -->
+  <div class="card">
+    <h2>Loan Info</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Buydown Type</label>
+        <div class="input-wrap">
+          <select id="buydownType">
+            <option value="321">3-2-1 Buydown</option>
+            <option value="21">2-1 Buydown</option>
+            <option value="11">1-1 Buydown</option>
+            <option value="10">1-0 Buydown</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Loan Term (Yr)</label>
+        <div class="input-wrap">
+          <select id="loanTerm">
+            <option value="30" selected>30</option>
+            <option value="20">20</option>
+            <option value="15">15</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Total Loan Amount</label>
+        <div class="input-wrap has-prefix">
+          <span class="prefix">$</span>
+          <input type="number" id="loanAmount" value="400000" min="0" step="1000" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Interest Rate (%)</label>
+        <div class="input-wrap has-suffix">
+          <input type="number" id="interestRate" value="6.5" min="0" max="20" step="0.125" />
+          <span class="suffix">%</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-calc" onclick="calculate()">Calculate</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card" id="results">
+    <h2>Your Buydown Savings</h2>
+    <div class="results-table-wrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Rate</th>
+            <th>Monthly Payment</th>
+            <th>Monthly Savings¹</th>
+            <th>Annual Savings</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <div class="total-cost-box">
+      <div>
+        <div class="label">Buydown Total Cost</div>
+        <div class="amount" id="totalCost">$0.00</div>
+      </div>
+      <div class="note">This is the total estimated cost that can be paid for by the buyer, seller, lender, or third party. Subject to investor guidelines.</div>
+    </div>
+    <br/>
+    <div class="disclaimer">
+      <p>These calculations are tools for learning more about the mortgage process and are for educational/estimation purposes only. Payments shown are estimates and do not include amounts for taxes and insurance premiums (if applicable). The actual payment obligation will be greater. This does not constitute an offer or approval of credit. Contact Kimberly Patterson for actual estimates.</p>
+      <p>¹ Monthly savings based on buydown period payments compared to payments after the rate returns to its regular rate after the buydown period.</p>
+    </div>
+  </div>
+
+  <!-- TYPES OF BUYDOWNS -->
+  <div class="card info-section">
+    <h2>Types of Temporary Buydowns</h2>
+    <p>The type of temporary buydown you seek will depend on your individual needs. A borrower could reduce their rate for one year or up to three years if they so choose. The rate returns to the original fixed rate after the buydown period.</p>
+    <div class="buydown-types">
+      <div class="bt-card">
+        <h4>3-2-1 Buydown</h4>
+        <p>Reduces the rate by 3% in year one, 2% in year two, and 1% in year three. After year three, the rate remains the same for the life of the loan.</p>
+      </div>
+      <div class="bt-card">
+        <h4>2-1 Buydown</h4>
+        <p>Reduces the rate by 2% in year one and 1% in year two. After the buydown period the rate returns to the original fixed rate.</p>
+      </div>
+      <div class="bt-card">
+        <h4>1-1 Buydown</h4>
+        <p>Reduces the rate by 1% for the first two years of the mortgage, then returns to the full rate for the remaining term.</p>
+      </div>
+      <div class="bt-card">
+        <h4>1-0 Buydown</h4>
+        <p>Reduces the rate by 1% for the first year only, then returns to the original fixed rate.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO CALCULATE -->
+  <div class="card info-section">
+    <h2>How Do You Calculate a Mortgage Buydown?</h2>
+    <p>Trying to do the math yourself to calculate a mortgage buydown can be challenging. Use this free buydown calculator to make it easy. Here's how:</p>
+    <h3>Step 1 — Select Your Buydown Type</h3>
+    <p>Choose from the dropdown menu: 3-2-1, 2-1, 1-1, or 1-0.</p>
+    <h3>Step 2 — Enter Your Loan Details</h3>
+    <p>Enter the number of years of your loan term, the total loan amount, and the interest rate percentage, then click <strong>Calculate</strong>.</p>
+    <h3>Step 3 — Review Your Savings</h3>
+    <p>The difference between the original mortgage payment and the buydown payment equals the monthly savings. The sum of those savings over the buydown period equals the total cost of the buydown.</p>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h2>Talk to a Mortgage Expert Today</h2>
+    <p>Get a custom quote of your potential savings and find the right loan option for your situation.</p>
+    <a href="tel:8186525652">(818) 652-5652 — Call Kimberly</a>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card info-section">
+    <h2>Frequently Asked Questions</h2>
+
+    <h3>How does a buydown work on a mortgage?</h3>
+    <p>A temporary mortgage buydown is a lump sum paid by the builder or seller to temporarily reduce the interest rate of the mortgage for a specified time frame. Since the buydown lowers your interest rate, it will effectively reduce your overall monthly mortgage payment for the first few years of your mortgage.</p>
+
+    <h3>What is the difference between a buydown and discount points?</h3>
+    <p>Discount points, also known as mortgage points, are upfront fees a borrower can pay to get a reduced interest rate over the <em>life</em> of the loan. One discount point costs 1% of the loan amount and may lower the rate by up to 0.25%, depending on product and loan characteristics. Discount points are most effective when the borrower stays in the home long enough to break even on the cost.</p>
+    <p>Unlike discount points, a temporary buydown is typically paid by the seller or builder and reduces the interest rate only for the first few years of the mortgage. A temporary buydown can be a great option to help you ease into your mortgage payments or if you plan to move within a few years.</p>
+
+    <h3>Is a buydown a good idea?</h3>
+    <p>A temporary mortgage buydown can benefit both buyers and sellers. For buyers, it reduces the interest rate and therefore the monthly payment for the term of the buydown. Sellers like it because it offers a tangible financial benefit to the buyer without reducing the asking price of the home. The key is making sure the buydown is discussed during the offer and negotiation process so both parties are on the same page.</p>
+  </div>
+
+  <!-- GLOBAL DISCLAIMER -->
+  <div class="disclaimer">
+    <p>These calculations are tools for learning more about the mortgage process and are for educational/estimation purposes only. Payments shown are estimates and do not include amounts for taxes and insurance premiums (if applicable). The actual payment obligation will be greater. This does not constitute an offer or approval of credit. Contact Kimberly Patterson at Midland Federal Savings Bank, NMLS# 364477 for actual estimates. Loans are subject to borrower qualifications, including income, property evaluation, and final credit approval. Temporary buydowns must be paid for by seller or builder. Certain loan programs do not allow buydowns; additional restrictions apply. Rates subject to change without notice.</p>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p><strong>Kimberly Patterson</strong> | Midland Federal Savings Bank | NMLS# 364477</p>
+  <p style="margin-top:4px;"><a href="tel:8186525652" style="color:#c8973a;">(818) 652-5652</a> | <a href="mailto:kimberly.r.patterson@gmail.com" style="color:#c8973a;">kimberly.r.patterson@gmail.com</a></p>
+  <p style="margin-top:8px; font-size:11px; color:#6a8aaa;">© 2026 Midland Federal Savings Bank. All rights reserved. Equal Housing Lender.</p>
+</footer>
+
+<!-- ── CALCULATOR LOGIC ── -->
+<script>
+  function monthlyPayment(principal, annualRate, termYears) {
+    const n = termYears * 12;
+    const r = annualRate / 100 / 12;
+    if (r === 0) return principal / n;
+    return principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function fmt(n) {
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function getBuydownSchedule(type) {
+    // returns array of rate reductions per year (0-indexed); full rate after last entry
+    switch (type) {
+      case '321': return [3, 2, 1];
+      case '21':  return [2, 1];
+      case '11':  return [1, 1];
+      case '10':  return [1];
+      default:    return [3, 2, 1];
+    }
+  }
+
+  function calculate() {
+    const type    = document.getElementById('buydownType').value;
+    const term    = parseInt(document.getElementById('loanTerm').value);
+    const amount  = parseFloat(document.getElementById('loanAmount').value);
+    const rate    = parseFloat(document.getElementById('interestRate').value);
+
+    if (!amount || !rate || amount <= 0 || rate <= 0) {
+      alert('Please enter a valid loan amount and interest rate.');
+      return;
+    }
+
+    const schedule = getBuydownSchedule(type);
+    const fullPayment = monthlyPayment(amount, rate, term);
+
+    const tbody = document.getElementById('resultsBody');
+    tbody.innerHTML = '';
+
+    let totalCost = 0;
+
+    // Buydown years
+    schedule.forEach((reduction, i) => {
+      const buydownRate = rate - reduction;
+      const payment = monthlyPayment(amount, buydownRate, term);
+      const monthlySavings = fullPayment - payment;
+      const annualSavings = monthlySavings * 12;
+      totalCost += annualSavings;
+
+      const tr = document.createElement('tr');
+      tr.className = 'buydown-row';
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${buydownRate.toFixed(2)}%</td>
+        <td>${fmt(payment)}</td>
+        <td class="savings">${fmt(monthlySavings)}</td>
+        <td class="savings">${fmt(annualSavings)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Full-rate year (first year after buydown)
+    const firstFullYear = schedule.length + 1;
+    const tr = document.createElement('tr');
+    tr.className = 'regular-row';
+    tr.innerHTML = `
+      <td>${firstFullYear}+</td>
+      <td>${rate.toFixed(2)}%</td>
+      <td>${fmt(fullPayment)}</td>
+      <td class="zero">${fmt(0)}</td>
+      <td class="zero">${fmt(0)}</td>
+    `;
+    tbody.appendChild(tr);
+
+    document.getElementById('totalCost').textContent = fmt(totalCost);
+
+    const resultsEl = document.getElementById('results');
+    resultsEl.style.display = 'block';
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Auto-calculate on page load with defaults
+  window.addEventListener('load', calculate);
+</script>
+
+</body>
+</html>
